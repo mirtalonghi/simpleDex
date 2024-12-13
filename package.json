@@ -1,0 +1,30 @@
+{
+  "name": "simpledex",
+  "version": "1.0.0",
+  "description": "SimpleDex para TP4",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mirtalonghi/simpleDex.git"
+  },
+  "author": "Mirta Longhitano",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mirtalonghi/simpleDex/issues"
+  },
+  "homepage": "https://github.com/mirtalonghi/simpleDex#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0",
+    "ethers": "^6.13.4",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.17"
+  },
+  "keywords": []
+}

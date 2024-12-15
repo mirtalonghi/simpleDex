@@ -84,14 +84,14 @@ contract SimpleDEX is Ownable {
 
     ///  Gets the price of a token relative to the other
 
-    function getPrice(address _token) external view returns (uint256) {
+
+   function getPrice(address _token) external view returns (uint256) {
         require(_token == address(tokenA) || _token == address(tokenB), "Invalid token");
 
         return _token == address(tokenA)
             ? (tokenB.balanceOf(address(this)) * 1e18) / tokenA.balanceOf(address(this))
             : (tokenA.balanceOf(address(this)) * 1e18) / tokenB.balanceOf(address(this));
     }
-
     ///  Calculates the output amount of a swap
 
     function getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut) private pure returns (uint256) {

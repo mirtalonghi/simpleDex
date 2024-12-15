@@ -47,7 +47,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   await deploy("SimpleDEX", {
     from: deployer,
     // Contract constructor arguments
-    args: [await tokenA.getAddress(),await tokenB.getAddress()],
+    args: [await tokenA.getAddress(), await tokenB.getAddress()],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.

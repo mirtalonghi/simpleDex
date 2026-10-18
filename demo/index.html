@@ -4,251 +4,259 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SimpleDEX v2 — demo interactiva</title>
-<meta name="description" content="Exchange descentralizado x·y=k en Solidity. Probá un swap y mirá cómo la versión 2 corrige las fallas de la original.">
+<meta name="description" content="Exchange descentralizado x·y=k en Solidity. Probá un intercambio y mirá cómo la versión 2 corrige las fallas de la original.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#EDF0F5; --card:#FFFFFF; --ink:#16213A; --muted:#5B6680; --line:#CDD4E1;
-  --a:#2367A6; --a-soft:#DCE8F5; --b:#C98A0B; --b-soft:#F7ECD3;
-  --bad:#B23A48; --bad-soft:#F6DFE2; --good:#2D7D55; --good-soft:#DCF0E5;
-  --r:14px;
+  --night:#0F1638; --night-2:#18214D; --night-line:rgba(255,255,255,.09); --night-text:#AEB6D9;
+  --paper:#F2F3F8; --card:#FFFFFF; --ink:#11183A; --muted:#5A6283; --line:#D7DBE8;
+  --a:#3D63F0; --a-soft:#E2E8FD; --a-ink:#2342B8;
+  --b:#F2A93B; --b-soft:#FCEFD9; --b-ink:#8F5A00;
+  --bad:#C23B4E; --bad-soft:#FBE7EA; --good:#1F8A5B; --good-soft:#E1F3EA;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 "Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
-h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
-a{color:var(--a)}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.05;margin:0}
+a{color:inherit}
 button,input{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--a);outline-offset:2px}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
 
-/* encabezado */
-header.wrap{padding-top:56px;padding-bottom:8px}
-.top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
-h1{font-size:clamp(40px,7vw,72px);font-weight:700;letter-spacing:-.02em}
-h1 small{font-size:.38em;font-weight:500;color:var(--muted);letter-spacing:0;margin-left:.3em}
-.lead{max-width:62ch;color:var(--muted);margin:12px 0 0;font-size:18px}
-.links{display:flex;gap:16px;font-weight:500}
+/* ---------- banda principal ---------- */
+.band{background:var(--night);color:#fff;padding:22px 0 56px;position:relative;overflow:hidden}
+.band::after{content:"";position:absolute;inset:auto -10% -60% 40%;height:120%;background:radial-gradient(closest-side,rgba(61,99,240,.35),transparent);pointer-events:none}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600}
+.brand svg{flex:none}
+.nav nav{display:flex;gap:18px;font-size:15px;color:var(--night-text)}
+.nav nav a{text-decoration:none}
+.nav nav a:hover{color:#fff;text-decoration:underline}
 
-/* hero: curva + panel de swap */
-.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;margin:28px 0 64px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
-.curve-panel{padding:18px 18px 10px;display:flex;flex-direction:column}
-.curve-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
-.curve-head h2{font-size:22px}
-.k{color:var(--muted);font-size:14px}
-svg.curve{width:100%;height:auto;display:block;margin:8px 0 auto}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:10px;overflow:hidden;margin-top:6px}
-.stats div{background:var(--card);padding:10px 12px}
-.stats b{display:block;font-size:18px}
-.stats span{font-size:13px;color:var(--muted)}
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;margin-top:36px;position:relative;z-index:1;align-items:start}
+h1{font-size:clamp(40px,5.4vw,66px);font-weight:800;letter-spacing:-.035em}
+h1 .eq{display:block;font-weight:400;color:var(--night-text);font-size:.46em;letter-spacing:-.01em;margin-top:.25em}
+.lead{color:var(--night-text);max-width:52ch;margin:18px 0 0;font-size:17px}
+.chart{margin-top:22px}
+svg.curve{width:100%;height:auto;display:block}
+.readout{display:flex;gap:28px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--night-text)}
+.readout b{display:block;color:#fff;font-size:22px;font-family:"Bricolage Grotesque",sans-serif;font-weight:600}
 
-.swap h2{font-size:22px;margin-bottom:14px}
-.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#FAFBFD}
-.box label{font-size:13px;color:var(--muted);display:flex;justify-content:space-between}
-.row{display:flex;align-items:center;gap:10px;margin-top:4px}
-.row input{flex:1;min-width:0;border:0;background:transparent;font-size:28px;font-weight:600;padding:2px 0}
-.row input:focus{outline:none}
+/* ---------- panel de intercambio ---------- */
+.swap{background:var(--card);color:var(--ink);border-radius:22px;padding:22px;box-shadow:0 30px 60px -20px rgba(5,10,40,.6);margin-top:8px}
+.swap-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.swap h2{font-size:24px;font-weight:600}
+.wallet-line{font-size:13px;color:var(--muted)}
+.box{border-radius:16px;padding:14px 16px;background:var(--paper);border:2px solid transparent}
 .box:focus-within{border-color:var(--a)}
-.out{flex:1;font-size:28px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
-.chip{border-radius:999px;padding:4px 12px;font-weight:600;font-size:14px;white-space:nowrap}
-.chip.a{background:var(--a-soft);color:var(--a)} .chip.b{background:var(--b-soft);color:#8A5D00}
-.flip{display:block;margin:-8px auto;position:relative;z-index:1;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:18px}
-.flip:hover{background:var(--paper)}
-.details{margin:14px 0;font-size:14px;display:grid;gap:6px}
-.details div{display:flex;justify-content:space-between;align-items:center;gap:6px 12px;flex-wrap:wrap}
-.details span:first-child{color:var(--muted)}
-.slip{display:flex;gap:6px;align-items:center}
-.slip button{white-space:nowrap;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:2px 8px;cursor:pointer;font-size:13px}
-.slip button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.box label{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.row{display:flex;align-items:center;gap:10px;margin-top:2px}
+.row input{flex:1;min-width:0;border:0;background:transparent;font:600 32px/1.2 "Bricolage Grotesque",sans-serif;padding:0}
+.row input:focus{outline:none}
+.out{flex:1;min-width:0;font:600 32px/1.2 "Bricolage Grotesque",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.max{border:0;background:none;color:var(--a-ink);font-weight:600;cursor:pointer;padding:0;font-size:13px}
+.tok{display:inline-flex;align-items:center;gap:7px;background:var(--card);border-radius:999px;padding:5px 12px 5px 6px;font-weight:600;font-size:15px;white-space:nowrap;box-shadow:0 1px 0 var(--line)}
+.dot{width:20px;height:20px;flex:none}
+.dot.a{border-radius:50%;background:var(--a)}
+.dot.b{border-radius:5px;background:var(--b)}
+.flip{display:grid;place-items:center;margin:-12px auto;position:relative;z-index:1;width:40px;height:40px;border-radius:12px;border:4px solid var(--card);background:var(--paper);cursor:pointer;transition:transform .25s}
+.flip:hover{transform:rotate(180deg)}
+.details{margin:16px 2px;font-size:14px;display:grid;gap:7px}
+.details>div{display:flex;justify-content:space-between;align-items:center;gap:6px 12px;flex-wrap:wrap}
+.details>div>span:first-child{color:var(--muted)}
+.slip{display:flex;gap:4px;background:var(--paper);padding:3px;border-radius:9px}
+.slip button{white-space:nowrap;border:0;background:transparent;border-radius:7px;padding:2px 9px;cursor:pointer;font-size:13px}
+.slip button[aria-pressed="true"]{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
 .impact.high{color:var(--bad);font-weight:600}
-.primary{width:100%;border:0;border-radius:12px;padding:14px;background:var(--ink);color:#fff;font-weight:600;font-size:17px;cursor:pointer}
-.primary:hover{background:#24345A}
+.primary{width:100%;border:0;border-radius:14px;padding:16px;background:var(--a);color:#fff;font-weight:600;font-size:17px;cursor:pointer;transition:background .15s}
+.primary:hover{background:var(--a-ink)}
 .primary:disabled{background:var(--line);color:var(--muted);cursor:not-allowed}
-.msg{min-height:22px;margin-top:10px;font-size:14px}
+.msg{min-height:21px;margin-top:10px;font-size:14px}
 .msg.ok{color:var(--good)} .msg.err{color:var(--bad)}
-.wallet{display:flex;gap:14px;font-size:14px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
-.wallet b{color:var(--ink)}
-.linkbtn{background:none;border:0;color:var(--a);cursor:pointer;padding:0;text-decoration:underline;font-size:14px}
+.reset{background:none;border:0;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline;font-size:13px}
 
-/* fallas v1 vs v2 */
-section{margin-bottom:72px}
-.sec-head{max-width:66ch;margin-bottom:24px}
-.sec-head h2{font-size:clamp(28px,4vw,40px);letter-spacing:-.01em}
-.sec-head p{color:var(--muted);margin:10px 0 0}
-.flaw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:20px;padding:26px 0;border-top:1px solid var(--line)}
-.flaw h3{font-size:22px}
-.flaw p{color:var(--muted);margin:8px 0 14px;max-width:46ch}
-.run{border:1px solid var(--ink);background:transparent;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+/* ---------- fallas v1 vs v2 ---------- */
+main section{padding:80px 0 0}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:end;margin-bottom:34px}
+.sec-head h2{font-size:clamp(32px,4.6vw,54px);font-weight:800;letter-spacing:-.03em}
+.sec-head p{color:var(--muted);margin:0;max-width:52ch}
+.cases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.case{background:var(--card);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.case h3{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.case>p{color:var(--muted);margin:0;font-size:15px}
+.run{align-self:flex-start;border:2px solid var(--ink);background:transparent;border-radius:12px;padding:8px 16px;font-weight:600;cursor:pointer}
 .run:hover{background:var(--ink);color:#fff}
-.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.res{border-radius:12px;padding:14px 16px;border:1px solid var(--line);background:var(--card);min-height:120px}
-.res h4{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--muted)}
-.res .big{font-family:"Bricolage Grotesque",sans-serif;font-size:22px;font-weight:700;line-height:1.2}
-.res p{margin:6px 0 0;font-size:14px;color:var(--ink);max-width:none}
-.res.bad{background:var(--bad-soft);border-color:#E7B9BF}
-.res.bad .big{color:var(--bad)}
-.res.good{background:var(--good-soft);border-color:#B5DCC6}
-.res.good .big{color:var(--good)}
-.res.idle .big{color:var(--muted);font-size:16px;font-weight:500;font-family:inherit}
-.res.flash{animation:flash .5s ease}
-@keyframes flash{from{transform:scale(.98);opacity:.4}to{transform:none;opacity:1}}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}
+.res{border-radius:14px;padding:14px;background:var(--paper);min-height:132px}
+.res h4{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.res .big{font:600 20px/1.2 "Bricolage Grotesque",sans-serif}
+.res p{margin:6px 0 0;font-size:13.5px;line-height:1.45}
+.res.idle .big{color:var(--muted);font:400 15px/1.4 "Instrument Sans",sans-serif}
+.res.bad{background:var(--bad-soft)} .res.bad .big{color:var(--bad)}
+.res.good{background:var(--good-soft)} .res.good .big{color:var(--good)}
+.mark{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;color:#fff;background:var(--muted)}
+.bad .mark{background:var(--bad)} .good .mark{background:var(--good)}
+.res.flash{animation:pop .45s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pop{from{transform:scale(.96);opacity:.3}to{transform:none;opacity:1}}
 
-.more{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;border-top:1px solid var(--line);padding-top:26px}
-.more h3{font-size:18px}
-.more p{color:var(--muted);font-size:15px;margin:6px 0 0}
+.extras{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
+.extras div{border-top:2px solid var(--ink);padding-top:14px}
+.extras h3{font-size:19px;font-weight:600}
+.extras p{color:var(--muted);font-size:15px;margin:6px 0 0}
 
-/* registro */
-.log{list-style:none;margin:0;padding:0;font-size:14px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
-.log li{padding:9px 14px;border-bottom:1px solid var(--line);display:flex;gap:12px}
+/* ---------- registro ---------- */
+.log{list-style:none;margin:0;padding:0;font-size:14px;max-height:280px;overflow:auto;background:var(--card);border-radius:18px}
+.log li{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:baseline}
 .log li:last-child{border-bottom:0}
-.log .ev{font-weight:600;min-width:120px}
+.log .ev{font-weight:600;min-width:118px;color:var(--a-ink)}
+.log .t{margin-left:auto;color:var(--muted);font-size:13px;white-space:nowrap}
 .log .empty{color:var(--muted)}
 
-footer.wrap{border-top:1px solid var(--line);padding-top:24px;padding-bottom:48px;color:var(--muted);font-size:14px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer{margin-top:90px;background:var(--night);color:var(--night-text);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:26px;padding-bottom:30px}
+footer a{color:#fff}
 
-@media (max-width:860px){
-  .hero{grid-template-columns:minmax(0,1fr)}
-  .flaw{grid-template-columns:1fr}
-  .more{grid-template-columns:1fr}
+@media (max-width:920px){
+  .hero{grid-template-columns:minmax(0,1fr);gap:28px}
+  .sec-head{grid-template-columns:minmax(0,1fr);gap:14px}
+  .cases{grid-template-columns:minmax(0,1fr)}
+  .extras{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:520px){
+  .nav nav{display:none}
   .vs{grid-template-columns:1fr}
-  .stats{grid-template-columns:1fr 1fr}
-  .stats div:last-child{grid-column:span 2}
+  .row input,.out{font-size:28px}
+  .readout{gap:18px}
 }
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<header class="wrap">
-  <div class="top">
-    <div>
-      <h1>SimpleDEX<small>v2</small></h1>
-      <p class="lead">Un exchange descentralizado de dos tokens escrito en Solidity. Probá un intercambio: el pool sigue la regla del producto constante, x · y = k, igual que el contrato.</p>
+<div class="band">
+  <div class="wrap">
+    <div class="nav">
+      <span class="brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="10" cy="14" r="8" fill="#3D63F0"/><rect x="12" y="6" width="16" height="16" rx="4" fill="#F2A93B" opacity=".9"/></svg>
+        SimpleDEX
+      </span>
+      <nav aria-label="Enlaces">
+        <a href="#fallas">Qué mejoró</a>
+        <a href="https://github.com/mirtalonghi/simpleDex/blob/main/packages/hardhat/contracts/SimpleDex.sol">Contrato</a>
+        <a href="https://github.com/mirtalonghi/simpleDex">GitHub</a>
+      </nav>
     </div>
-    <nav class="links" aria-label="Enlaces">
-      <a href="https://github.com/mirtalonghi/simpleDex/blob/main/packages/hardhat/contracts/SimpleDex.sol">Ver el contrato</a>
-      <a href="https://github.com/mirtalonghi/simpleDex">GitHub</a>
-    </nav>
+
+    <div class="hero">
+      <div>
+        <h1>Intercambiá dos tokens sin intermediarios<span class="eq">con una sola regla: x · y = k</span></h1>
+        <p class="lead">SimpleDEX es un exchange descentralizado escrito en Solidity. Escribí un monto: el gráfico muestra cuánto entra al pool y cuánto sale, siempre sobre la misma curva.</p>
+        <div class="chart">
+          <svg class="curve" id="curve" viewBox="0 0 640 380" role="img" aria-labelledby="curveDesc"><desc id="curveDesc">Curva del pool.</desc></svg>
+          <div class="readout">
+            <div><b id="sRA"></b>TKA en el pool</div>
+            <div><b id="sRB"></b>TKB en el pool</div>
+            <div><b id="sPrice"></b>precio de 1 TKA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swap">
+        <div class="swap-head">
+          <h2>Intercambiar</h2>
+          <button class="reset" id="reset">Reiniciar</button>
+        </div>
+        <div class="box">
+          <label for="amtIn"><span>Entregás</span><span>Tenés <span id="balIn"></span> · <button class="max" id="max">Usar todo</button></span></label>
+          <div class="row">
+            <input id="amtIn" inputmode="decimal" autocomplete="off" value="80" aria-describedby="msg">
+            <span class="tok" id="tokIn"></span>
+          </div>
+        </div>
+        <button class="flip" id="flip" aria-label="Invertir la dirección del intercambio">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2v11M5 13l-3-3M5 13l3-3M11 14V3M11 3L8 6M11 3l3 3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="box">
+          <label><span>Recibís (estimado)</span><span>Tenés <span id="balOut"></span></span></label>
+          <div class="row">
+            <span class="out" id="amtOut" aria-live="polite">0</span>
+            <span class="tok" id="tokOut"></span>
+          </div>
+        </div>
+        <div class="details">
+          <div><span>Comisión del pool (0,3 %)</span><span id="dFee"></span></div>
+          <div><span>Impacto en el precio</span><span id="dImpact" class="impact"></span></div>
+          <div><span>Tolerancia de deslizamiento</span>
+            <span class="slip" role="group" aria-label="Tolerancia de deslizamiento">
+              <button data-s="10" aria-pressed="false">0,1 %</button><button data-s="50" aria-pressed="true">0,5 %</button><button data-s="100" aria-pressed="false">1 %</button>
+            </span>
+          </div>
+          <div><span>Mínimo a recibir</span><span id="dMin"></span></div>
+        </div>
+        <button class="primary" id="swapBtn">Intercambiar</button>
+        <div class="msg" id="msg" role="status"></div>
+        <div class="wallet-line">Billetera de prueba con 500 TKA y 500 TKB. No usa dinero real.</div>
+      </div>
+    </div>
   </div>
-</header>
+</div>
 
 <main class="wrap">
-  <div class="hero">
-    <div class="panel curve-panel">
-      <div class="curve-head">
-        <h2>La curva del pool</h2>
-        <span class="k" id="kLabel"></span>
-      </div>
-      <svg class="curve" id="curve" viewBox="0 0 560 400" role="img" aria-labelledby="curveDesc">
-        <desc id="curveDesc">Gráfico de la curva x por y igual a k con las reservas actuales del pool y el punto al que lo llevaría el intercambio que estás por hacer.</desc>
-      </svg>
-      <div class="stats">
-        <div><b id="sRA"></b><span>Reserva TKA</span></div>
-        <div><b id="sRB"></b><span>Reserva TKB</span></div>
-        <div><b id="sPrice"></b><span>Precio de 1 TKA</span></div>
-      </div>
-    </div>
-
-    <div class="panel swap">
-      <h2>Intercambiar</h2>
-      <div class="box">
-        <label for="amtIn"><span>Entregás</span><span>Saldo: <span id="balIn"></span></span></label>
-        <div class="row">
-          <input id="amtIn" inputmode="decimal" autocomplete="off" value="20" aria-describedby="msg">
-          <span class="chip a" id="chipIn">TKA</span>
-        </div>
-      </div>
-      <button class="flip" id="flip" aria-label="Invertir la dirección del intercambio">⇅</button>
-      <div class="box">
-        <label><span>Recibís (estimado)</span><span>Saldo: <span id="balOut"></span></span></label>
-        <div class="row">
-          <span class="out" id="amtOut" aria-live="polite">0</span>
-          <span class="chip b" id="chipOut">TKB</span>
-        </div>
-      </div>
-      <div class="details">
-        <div><span>Comisión del pool (0,3 %)</span><span id="dFee"></span></div>
-        <div><span>Impacto en el precio</span><span id="dImpact" class="impact"></span></div>
-        <div><span>Tolerancia de deslizamiento</span>
-          <span class="slip" role="group" aria-label="Tolerancia de deslizamiento">
-            <button data-s="10">0,1 %</button><button data-s="50" aria-pressed="true">0,5 %</button><button data-s="100">1 %</button>
-          </span>
-        </div>
-        <div><span>Mínimo a recibir</span><span id="dMin"></span></div>
-      </div>
-      <button class="primary" id="swapBtn">Intercambiar</button>
-      <div class="msg" id="msg" role="status"></div>
-      <div class="wallet">
-        <span>Tu billetera de prueba: <b id="wA"></b> TKA · <b id="wB"></b> TKB</span>
-        <button class="linkbtn" id="reset">Reiniciar demo</button>
-      </div>
-    </div>
-  </div>
-
-  <section aria-labelledby="fallasTitle">
+  <section id="fallas" aria-labelledby="fallasTitle">
     <div class="sec-head">
-      <h2 id="fallasTitle">Qué fallaba en la versión original y cómo lo resuelve la v2</h2>
-      <p>La v1 fue el trabajo práctico del curso de ETH-KIPU. Cada caso de abajo corre la misma situación contra la lógica de los dos contratos. Los resultados coinciden con los tests automatizados del repositorio.</p>
+      <h2 id="fallasTitle">Lo que fallaba en la versión original</h2>
+      <p>La v1 fue el trabajo práctico del curso de ETH-KIPU. Cada caso corre la misma situación contra la lógica de los dos contratos; los resultados coinciden con los tests automatizados del repositorio.</p>
     </div>
 
-    <div class="flaw">
-      <div>
+    <div class="cases">
+      <article class="case">
         <h3>Intercambiar con el pool vacío</h3>
-        <p>Si todavía nadie agregó liquidez y alguien intenta un intercambio, la v1 le cobra los tokens y le devuelve cero.</p>
+        <p>Si todavía nadie agregó liquidez, la v1 le cobra los tokens a quien intenta un intercambio y le devuelve cero.</p>
         <button class="run" data-run="empty">Probar con 10 TKA</button>
-      </div>
-      <div class="vs"><div class="res idle" id="empty-v1"><h4>Versión original</h4><div class="big">Sin ejecutar</div></div><div class="res idle" id="empty-v2"><h4>Versión 2</h4><div class="big">Sin ejecutar</div></div></div>
-    </div>
-
-    <div class="flaw">
-      <div>
+        <div class="vs" data-case="empty"></div>
+      </article>
+      <article class="case">
         <h3>Ataque sándwich</h3>
-        <p>Un bot ve tu operación pendiente, compra justo antes para subir el precio y vende justo después. Sin un mínimo a recibir, la v1 ejecuta tu intercambio igual, al peor precio.</p>
+        <p>Un bot compra justo antes de tu operación y vende justo después. Sin un mínimo a recibir, la v1 la ejecuta igual, al peor precio.</p>
         <button class="run" data-run="sandwich">Probar con 100 TKA</button>
-      </div>
-      <div class="vs"><div class="res idle" id="sandwich-v1"><h4>Versión original</h4><div class="big">Sin ejecutar</div></div><div class="res idle" id="sandwich-v2"><h4>Versión 2</h4><div class="big">Sin ejecutar</div></div></div>
-    </div>
-
-    <div class="flaw">
-      <div>
-        <h3>Manipular el precio con una "donación"</h3>
-        <p>La v1 calcula el precio con el saldo del contrato. Cualquiera puede mandarle tokens directamente, sin pasar por el DEX, y mover la cotización a su favor.</p>
+        <div class="vs" data-case="sandwich"></div>
+      </article>
+      <article class="case">
+        <h3>Mover el precio con una donación</h3>
+        <p>La v1 calcula el precio con el saldo del contrato. Cualquiera puede mandarle tokens por fuera del DEX y cambiar la cotización.</p>
         <button class="run" data-run="donation">Probar donando 100 TKB</button>
-      </div>
-      <div class="vs"><div class="res idle" id="donation-v1"><h4>Versión original</h4><div class="big">Sin ejecutar</div></div><div class="res idle" id="donation-v2"><h4>Versión 2</h4><div class="big">Sin ejecutar</div></div></div>
-    </div>
-
-    <div class="flaw">
-      <div>
+        <div class="vs" data-case="donation"></div>
+      </article>
+      <article class="case">
         <h3>Tokens que no avisan cuando fallan</h3>
-        <p>Algunos tokens, en vez de cancelar la operación, devuelven "false" cuando una transferencia falla. La v1 no revisa esa respuesta, así que entrega tokens aunque no haya cobrado.</p>
+        <p>Algunos tokens devuelven "false" en vez de cancelar una transferencia fallida. La v1 no revisa esa respuesta y paga igual.</p>
         <button class="run" data-run="falsy">Probar sin fondos</button>
-      </div>
-      <div class="vs"><div class="res idle" id="falsy-v1"><h4>Versión original</h4><div class="big">Sin ejecutar</div></div><div class="res idle" id="falsy-v2"><h4>Versión 2</h4><div class="big">Sin ejecutar</div></div></div>
+        <div class="vs" data-case="falsy"></div>
+      </article>
     </div>
 
-    <div class="more">
+    <div class="extras">
       <div><h3>Comisión para el pool</h3><p>Cada intercambio deja un 0,3 % en el pool. Es lo que hace que aportar liquidez tenga sentido.</p></div>
-      <div><h3>Liquidez proporcional</h3><p>Al agregar fondos, el contrato toma la proporción justa para no mover el precio, y no permite vaciar un lado del pool dejando el otro.</p></div>
-      <div><h3>Más controles</h3><p>Protección contra reentrancia, tokens con comisión por transferencia, direcciones inválidas en el constructor y errores con nombre propio.</p></div>
+      <div><h3>Liquidez proporcional</h3><p>Al agregar fondos se toma la proporción justa para no mover el precio, y no se puede vaciar un lado del pool dejando el otro.</p></div>
+      <div><h3>Más controles</h3><p>Protección contra reentrancia, tokens con comisión por transferencia, validaciones en el constructor y errores con nombre propio.</p></div>
     </div>
   </section>
 
   <section aria-labelledby="logTitle">
-    <div class="sec-head"><h2 id="logTitle">Eventos del contrato</h2><p>Lo que el contrato emitiría en la blockchain por cada operación de esta demo.</p></div>
-    <ul class="log" id="log"><li class="empty">Todavía no hiciste ningún intercambio.</li></ul>
+    <div class="sec-head">
+      <h2 id="logTitle">Eventos del contrato</h2>
+      <p>Lo que el contrato emitiría en la blockchain por cada intercambio que hagas en esta demo.</p>
+    </div>
+    <ul class="log" id="log"></ul>
   </section>
 </main>
 
-<footer class="wrap">
-  <span>Hecho por Mirta Longhitano · <a href="https://moebiuslabs.vercel.app">Moebius Labs</a></span>
-  <span>Demo simulada en el navegador con la misma matemática del contrato. No usa dinero real.</span>
+<footer>
+  <div class="wrap">
+    <span>Hecho por Mirta Longhitano · <a href="https://moebiuslabs.vercel.app">Moebius Labs</a></span>
+    <span>Simulación en el navegador con la misma matemática del contrato.</span>
+  </div>
 </footer>
 
 <script>
@@ -257,14 +265,16 @@ footer.wrap{border-top:1px solid var(--line);padding-top:24px;padding-bottom:48p
 const ONE = 10n ** 18n;
 const E = (n) => BigInt(Math.round(n * 1e6)) * 10n ** 12n;
 const toNum = (w) => Number(w) / 1e18;
-const fmt = (w, dp = 2) => toNum(w).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: dp });
+const fmt = (w, dp = 2) => toNum(w).toLocaleString("es-AR", { maximumFractionDigits: dp });
+const fmtN = (n, dp = 0) => n.toLocaleString("es-AR", { maximumFractionDigits: dp });
 function parse(str) {
   let s = String(str).trim().replace(/\s/g, "");
   // "1.000,5" (formato argentino) o "1000.5": si hay coma, los puntos son separadores de miles
   s = s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s;
   if (!/^\d*\.?\d*$/.test(s) || s === "" || s === ".") return null;
   const [i, d = ""] = s.split(".");
-  return BigInt(i || "0") * ONE + BigInt((d + "0".repeat(18)).slice(0, 18));
+  const v = BigInt(i || "0") * ONE + BigInt((d + "0".repeat(18)).slice(0, 18));
+  return v === 0n ? null : v;
 }
 
 // ---------- lógica de los contratos ----------
@@ -273,7 +283,7 @@ class Revert extends Error {}
 
 // v2: reservas internas, comisión, mínimo a recibir
 class DexV2 {
-  constructor(rA = 0n, rB = 0n) { this.rA = rA; this.rB = rB; this.feesA = 0n; this.feesB = 0n; }
+  constructor(rA = 0n, rB = 0n) { this.rA = rA; this.rB = rB; }
   quote(aToB, amtIn) {
     const [rIn, rOut] = aToB ? [this.rA, this.rB] : [this.rB, this.rA];
     if (rIn === 0n || rOut === 0n) return 0n;
@@ -282,14 +292,13 @@ class DexV2 {
   }
   swap(aToB, amtIn, minOut) {
     if (amtIn === 0n) throw new Revert("ZeroAmount: el monto tiene que ser mayor a cero.");
-    if (this.rA === 0n || this.rB === 0n) throw new Revert("EmptyPool: el pool no tiene liquidez. Tus tokens no se movieron.");
+    if (this.rA === 0n || this.rB === 0n) throw new Revert("EmptyPool: el pool no tiene liquidez.");
     const out = this.quote(aToB, amtIn);
-    if (out === 0n || out < minOut) throw new Revert(`InsufficientOutput: recibirías ${fmt(out)} y pediste al menos ${fmt(minOut)}. La operación se canceló y conservás tus tokens.`);
-    const fee = (amtIn * FEE_BPS) / BPS;
-    if (aToB) { this.rA += amtIn; this.rB -= out; this.feesA += fee; } else { this.rB += amtIn; this.rA -= out; this.feesB += fee; }
+    if (out === 0n || out < minOut) throw new Revert(`InsufficientOutput: recibirías ${fmt(out)} y pediste al menos ${fmt(minOut)}. Conservás tus tokens.`);
+    if (aToB) { this.rA += amtIn; this.rB -= out; } else { this.rB += amtIn; this.rA -= out; }
     return out;
   }
-  price() { if (this.rA === 0n || this.rB === 0n) throw new Revert("EmptyPool"); return (this.rB * ONE) / this.rA; }
+  price() { return (this.rB * ONE) / this.rA; }
 }
 
 // v1: usa el saldo del contrato, sin comisión ni mínimo, sin revisar la respuesta del token
@@ -301,111 +310,135 @@ class DexV1 {
     if (aToB) { if (paid) this.bA += amtIn; this.bB -= o; } else { if (paid) this.bB += amtIn; this.bA -= o; }
     return o;
   }
-  price() { if (this.bA === 0n) throw new Revert("Panic 0x12: división por cero"); return (this.bB * ONE) / this.bA; }
+  price() { return (this.bB * ONE) / this.bA; }
 }
 
-// ---------- estado de la demo ----------
+// ---------- estado ----------
+const $ = (id) => document.getElementById(id);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let dex, wallet, aToB = true, slipBps = 50n, events = [];
+let view = { rA: 1000, rB: 1000 }; // lo que dibuja el gráfico (se anima hacia el estado real)
+
+const TOK = { A: '<span class="dot a" aria-hidden="true"></span>TKA', B: '<span class="dot b" aria-hidden="true"></span>TKB' };
+
 function reset() {
   dex = new DexV2(E(1000), E(1000));
   wallet = { A: E(500), B: E(500) };
   events = [];
-  document.getElementById("amtIn").value = "20";
+  view = { rA: 1000, rB: 1000 };
+  $("amtIn").value = "80";
   setMsg("", "");
   render();
 }
-
-const $ = (id) => document.getElementById(id);
 function setMsg(t, cls) { const m = $("msg"); m.textContent = t; m.className = "msg " + cls; }
-
 function current() {
   const amt = parse($("amtIn").value);
   const out = amt ? dex.quote(aToB, amt) : 0n;
-  const min = (out * (BPS - slipBps)) / BPS;
-  return { amt, out, min };
+  return { amt, out, min: (out * (BPS - slipBps)) / BPS };
 }
 
 function render() {
   const { amt, out, min } = current();
   const tIn = aToB ? "TKA" : "TKB", tOut = aToB ? "TKB" : "TKA";
-  $("chipIn").textContent = tIn; $("chipIn").className = "chip " + (aToB ? "a" : "b");
-  $("chipOut").textContent = tOut; $("chipOut").className = "chip " + (aToB ? "b" : "a");
-  $("balIn").textContent = fmt(aToB ? wallet.A : wallet.B);
+  $("tokIn").innerHTML = aToB ? TOK.A : TOK.B;
+  $("tokOut").innerHTML = aToB ? TOK.B : TOK.A;
+  const bal = aToB ? wallet.A : wallet.B;
+  $("balIn").textContent = fmt(bal);
   $("balOut").textContent = fmt(aToB ? wallet.B : wallet.A);
   $("amtOut").textContent = amt ? fmt(out, 4) : "0";
   $("dFee").textContent = amt ? `${fmt((amt * FEE_BPS) / BPS, 4)} ${tIn}` : "—";
   $("dMin").textContent = amt ? `${fmt(min, 4)} ${tOut}` : "—";
 
-  // impacto: precio efectivo vs precio actual
   let impact = 0;
   if (amt && out > 0n) {
     const spot = aToB ? toNum(dex.rB) / toNum(dex.rA) : toNum(dex.rA) / toNum(dex.rB);
-    const eff = toNum(out) / toNum(amt);
-    impact = Math.max(0, (1 - eff / spot) * 100);
+    impact = Math.max(0, (1 - toNum(out) / toNum(amt) / spot) * 100);
   }
-  $("dImpact").textContent = amt ? impact.toLocaleString("es-AR", { maximumFractionDigits: 2 }) + " %" : "—";
+  $("dImpact").textContent = amt ? fmtN(impact, 2) + " %" : "—";
   $("dImpact").className = "impact" + (impact > 5 ? " high" : "");
 
-  const bal = aToB ? wallet.A : wallet.B;
   const btn = $("swapBtn");
-  if (!amt) { btn.disabled = true; btn.textContent = "Ingresá un monto"; }
+  if (!amt) { btn.disabled = true; btn.textContent = "Escribí un monto"; }
   else if (amt > bal) { btn.disabled = true; btn.textContent = `No tenés suficiente ${tIn}`; }
   else { btn.disabled = false; btn.textContent = `Intercambiar ${tIn} por ${tOut}`; }
 
   $("sRA").textContent = fmt(dex.rA);
   $("sRB").textContent = fmt(dex.rB);
   $("sPrice").textContent = fmt(dex.price(), 4) + " TKB";
-  $("kLabel").textContent = "k = " + (toNum(dex.rA) * toNum(dex.rB)).toLocaleString("es-AR", { maximumFractionDigits: 0 });
-  $("wA").textContent = fmt(wallet.A); $("wB").textContent = fmt(wallet.B);
-  drawCurve(amt && amt <= bal ? amt : 0n, out);
+  draw(amt && amt <= bal ? toNum(amt) : 0, amt && amt <= bal ? toNum(out) : 0);
   renderLog();
 }
 
-// ---------- gráfico de la curva ----------
-function drawCurve(amt, out) {
-  const svg = $("curve"), W = 560, H = 400, P = { l: 56, r: 16, t: 30, b: 42 };
-  const rA = toNum(dex.rA), rB = toNum(dex.rB), k = rA * rB;
-  const maxX = Math.max(rA * 2.2, 10), maxY = Math.max(rB * 2.2, 10);
+// ---------- gráfico ----------
+function draw(dIn, dOut) {
+  const svg = $("curve"), W = 640, H = 380, P = { l: 52, r: 18, t: 18, b: 40 };
+  const { rA, rB } = view, k = rA * rB;
+  const maxX = 2.2 * Math.sqrt(k), maxY = 2.2 * Math.sqrt(k);
   const x = (v) => P.l + (v / maxX) * (W - P.l - P.r);
   const y = (v) => H - P.b - (v / maxY) * (H - P.t - P.b);
-  let d = "";
-  const minX = k / maxY;
-  for (let i = 0; i <= 120; i++) {
-    const vx = minX + (maxX - minX) * (i / 120);
-    const vy = Math.min(k / vx, maxY);
+  const nice = (max) => { const raw = max / 4, p = 10 ** Math.floor(Math.log10(raw)), m = raw / p; const st = (m < 1.5 ? 1 : m < 3.5 ? 2.5 : m < 7.5 ? 5 : 10) * p; const o = []; for (let v = 0; v <= max; v += st) o.push(v); return o; };
+
+  let d = "", area = "";
+  const x0 = k / maxY;
+  for (let i = 0; i <= 140; i++) {
+    const vx = x0 + (maxX - x0) * (i / 140), vy = k / vx;
     d += (i ? "L" : "M") + x(vx).toFixed(1) + " " + y(vy).toFixed(1);
   }
+  area = d + `L${x(maxX)} ${y(0)}L${x(x0)} ${y(0)}Z`;
+
   let nA = rA, nB = rB;
-  if (amt > 0n) { if (aToB) { nA = rA + toNum(amt); nB = rB - toNum(out); } else { nB = rB + toNum(amt); nA = rA - toNum(out); } }
-  const nice = (max) => { const raw = max / 4, p = 10 ** Math.floor(Math.log10(raw)), m = raw / p; const st = (m < 1.5 ? 1 : m < 3.5 ? 2.5 : m < 7.5 ? 5 : 10) * p; const out = []; for (let v = 0; v <= max; v += st) out.push(v); return out; };
-  const ticks = nice(maxX), ticksY = nice(maxY);
-  const n = (v) => v.toLocaleString("es-AR", { maximumFractionDigits: 0 });
+  if (dIn > 0) { if (aToB) { nA = rA + dIn; nB = rB - dOut; } else { nB = rB + dIn; nA = rA - dOut; } }
+  const has = dIn > 0;
+  const lbl = (v) => (v >= 0 ? "+" : "−") + fmtN(Math.abs(v), 2);
+
+  // franjas: qué entra (eje del token que entregás) y qué sale (eje del otro)
+  const bandX = has ? `<rect x="${x(Math.min(rA, nA))}" y="${P.t}" width="${Math.abs(x(nA) - x(rA))}" height="${H - P.b - P.t}" fill="#3D63F0" opacity=".28"/>
+      <text x="${(x(rA) + x(nA)) / 2}" y="${H - P.b - 10}" fill="#9DB1FF" font-size="13" font-weight="600" text-anchor="middle">${lbl(nA - rA)} TKA</text>` : "";
+  const bandY = has ? `<rect x="${P.l}" y="${y(Math.max(rB, nB))}" width="${W - P.l - P.r}" height="${Math.abs(y(nB) - y(rB))}" fill="#F2A93B" opacity=".28"/>
+      <text x="${P.l + 10}" y="${(y(rB) + y(nB)) / 2 + 4}" fill="#F7C66F" font-size="13" font-weight="600">${lbl(nB - rB)} TKB</text>` : "";
+
   svg.innerHTML = `
-    <desc id="curveDesc">Curva x por y igual a k. Reservas actuales: ${n(rA)} TKA y ${n(rB)} TKB.</desc>
-    ${ticks.map((t) => `<line x1="${x(t)}" x2="${x(t)}" y1="${P.t}" y2="${H - P.b}" stroke="#E3E8F0"/><text x="${x(t)}" y="${H - P.b + 18}" font-size="12" fill="#5B6680" text-anchor="middle">${n(t)}</text>`).join("")}
-    ${ticksY.map((t) => `<line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}" stroke="#E3E8F0"/><text x="${P.l - 8}" y="${y(t) + 4}" font-size="12" fill="#5B6680" text-anchor="end">${n(t)}</text>`).join("")}
-    <text x="${W - P.r}" y="${H - 6}" font-size="12" fill="#2367A6" text-anchor="end" font-weight="600">Reserva TKA</text>
-    <text x="${P.l - 44}" y="16" font-size="12" fill="#8A5D00" font-weight="600">Reserva TKB</text>
-    <path d="${d}" fill="none" stroke="#16213A" stroke-width="2.5"/>
-    <line x1="${x(rA)}" x2="${x(rA)}" y1="${y(rB)}" y2="${H - P.b}" stroke="#2367A6" stroke-dasharray="4 4"/>
-    <line x1="${P.l}" x2="${x(rA)}" y1="${y(rB)}" y2="${y(rB)}" stroke="#C98A0B" stroke-dasharray="4 4"/>
-    ${amt > 0n ? `<path d="M${x(rA)} ${y(rB)} L${x(nA)} ${y(nB)}" stroke="#16213A" stroke-width="1.5" stroke-dasharray="2 4"/>
-      <circle cx="${x(nA)}" cy="${y(nB)}" r="8" fill="#fff" stroke="#16213A" stroke-width="2.5"/>
-      <text x="${x(nA) + (aToB ? 14 : -14)}" y="${y(nB) + (aToB ? 22 : -12)}" text-anchor="${aToB ? "start" : "end"}" font-size="13" fill="#16213A">después del intercambio</text>` : ""}
-    <circle cx="${x(rA)}" cy="${y(rB)}" r="8" fill="#16213A"/>
-    <text x="${x(rA) + (aToB ? -14 : 14)}" y="${y(rB) + (aToB ? -12 : 22)}" text-anchor="${aToB ? "end" : "start"}" font-size="13" fill="#16213A" font-weight="600">ahora</text>`;
+    <desc id="curveDesc">Curva x por y igual a k. El pool tiene ${fmtN(rA)} TKA y ${fmtN(rB)} TKB.${has ? ` Con este intercambio pasaría a ${fmtN(nA, 2)} TKA y ${fmtN(nB, 2)} TKB.` : ""}</desc>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3D63F0" stop-opacity=".25"/><stop offset="1" stop-color="#3D63F0" stop-opacity="0"/></linearGradient></defs>
+    ${nice(maxX).map((t) => `<line x1="${x(t)}" x2="${x(t)}" y1="${P.t}" y2="${H - P.b}" stroke="rgba(255,255,255,.07)"/><text x="${x(t)}" y="${H - P.b + 20}" font-size="12" fill="#8C95BF" text-anchor="middle">${fmtN(t)}</text>`).join("")}
+    ${nice(maxY).map((t) => `<line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}" stroke="rgba(255,255,255,.07)"/><text x="${P.l - 10}" y="${y(t) + 4}" font-size="12" fill="#8C95BF" text-anchor="end">${fmtN(t)}</text>`).join("")}
+    <path d="${area}" fill="url(#g)"/>
+    ${bandX}${bandY}
+    <path d="${d}" fill="none" stroke="#fff" stroke-width="2.5"/>
+    <text x="${W - P.r}" y="${H - 4}" font-size="12" fill="#9DB1FF" text-anchor="end" font-weight="600">TKA en el pool →</text>
+    <text x="${P.l}" y="${P.t - 4}" font-size="12" fill="#F7C66F" font-weight="600">↑ TKB en el pool</text>
+    ${has ? `<circle cx="${x(nA)}" cy="${y(nB)}" r="9" fill="none" stroke="#F2A93B" stroke-width="3"/>` : ""}
+    <circle cx="${x(rA)}" cy="${y(rB)}" r="9" fill="#fff"/>
+    <circle cx="${x(rA)}" cy="${y(rB)}" r="16" fill="none" stroke="#fff" stroke-opacity=".25"/>`;
 }
 
-// ---------- registro de eventos ----------
+// anima el punto del pool hasta las reservas nuevas
+function animateTo(targetA, targetB) {
+  if (reduced) { view = { rA: targetA, rB: targetB }; render(); return; }
+  const from = { ...view }, t0 = performance.now(), dur = 650;
+  const k = from.rA * from.rB;
+  const step = (now) => {
+    const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    // se mueve sobre la curva: interpola x y calcula y = k/x (la comisión agranda k levemente al final)
+    const ra = from.rA + (targetA - from.rA) * e;
+    const kk = k + (targetA * targetB - k) * e;
+    view = { rA: ra, rB: kk / ra };
+    draw(0, 0);
+    if (p < 1) requestAnimationFrame(step); else { view = { rA: targetA, rB: targetB }; render(); }
+  };
+  requestAnimationFrame(step);
+}
+
 function renderLog() {
   const ul = $("log");
-  if (!events.length) { ul.innerHTML = '<li class="empty">Todavía no hiciste ningún intercambio.</li>'; return; }
-  ul.innerHTML = events.slice().reverse().map((e) => `<li><span class="ev">${e.name}</span><span>${e.text}</span></li>`).join("");
+  if (!events.length) { ul.innerHTML = '<li class="empty">Todavía no hiciste ningún intercambio. Probá uno arriba.</li>'; return; }
+  ul.innerHTML = events.slice().reverse().map((e) => `<li><span class="ev">${e.name}</span><span>${e.text}</span><span class="t">${e.time}</span></li>`).join("");
 }
 
 // ---------- acciones ----------
 $("amtIn").addEventListener("input", () => { setMsg("", ""); render(); });
 $("flip").addEventListener("click", () => { aToB = !aToB; setMsg("", ""); render(); });
+$("max").addEventListener("click", () => { $("amtIn").value = fmt(aToB ? wallet.A : wallet.B, 6); render(); });
 $("reset").addEventListener("click", reset);
 document.querySelectorAll(".slip button").forEach((b) => b.addEventListener("click", () => {
   document.querySelectorAll(".slip button").forEach((o) => o.setAttribute("aria-pressed", "false"));
@@ -417,8 +450,13 @@ $("swapBtn").addEventListener("click", () => {
   try {
     const got = dex.swap(aToB, amt, min);
     if (aToB) { wallet.A -= amt; wallet.B += got; } else { wallet.B -= amt; wallet.A += got; }
-    events.push({ name: "TokenSwapped", text: `entregaste ${fmt(amt, 4)} ${tIn} y recibiste ${fmt(got, 4)} ${tOut}` });
+    events.push({ name: "TokenSwapped", text: `entregaste ${fmt(amt, 4)} ${tIn} y recibiste ${fmt(got, 4)} ${tOut}`, time: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) });
     setMsg(`Listo: recibiste ${fmt(got, 4)} ${tOut}.`, "ok");
+    $("amtIn").value = "";
+    render();
+    view = { ...view };
+    animateTo(toNum(dex.rA), toNum(dex.rB));
+    return;
   } catch (e) {
     if (!(e instanceof Revert)) throw e;
     setMsg(e.message, "err");
@@ -427,51 +465,46 @@ $("swapBtn").addEventListener("click", () => {
 });
 
 // ---------- casos v1 vs v2 ----------
-function show(id, cls, big, text) {
-  const el = $(id);
-  el.className = "res " + cls;
-  el.innerHTML = `<h4>${id.endsWith("v1") ? "Versión original" : "Versión 2"}</h4><div class="big">${big}</div><p>${text}</p>`;
-  void el.offsetWidth; el.classList.add("flash");
+function cell(which, cls, big, text) {
+  const title = which === "v1" ? "Versión original" : "Versión 2";
+  const mark = cls === "bad" ? "✕" : cls === "good" ? "✓" : "·";
+  return `<div class="res ${cls}${cls !== "idle" ? " flash" : ""}"><h4><span class="mark" aria-hidden="true">${mark}</span>${title}</h4><div class="big">${big}</div>${text ? `<p>${text}</p>` : ""}</div>`;
 }
+function show(id, v1, v2) { document.querySelector(`[data-case="${id}"]`).innerHTML = cell("v1", ...v1) + cell("v2", ...v2); }
+["empty", "sandwich", "donation", "falsy"].forEach((id) => show(id, ["idle", "Sin probar", ""], ["idle", "Sin probar", ""]));
 
 const scenarios = {
   empty() {
-    const v1 = new DexV1(0n, 0n);
-    const got1 = v1.swap(true, E(10));
-    show("empty-v1", "bad", `Perdés 10 TKA`, `Recibís ${fmt(got1)} TKB. Los 10 TKA quedan atrapados en el contrato.`);
-    try { new DexV2(0n, 0n).swap(true, E(10), 0n); }
-    catch (e) { show("empty-v2", "good", "Se cancela", "Error EmptyPool. Tus 10 TKA no se mueven de tu billetera."); }
+    const got = new DexV1(0n, 0n).swap(true, E(10));
+    let ok = false; try { new DexV2(0n, 0n).swap(true, E(10), 0n); } catch (e) { ok = e instanceof Revert; }
+    show("empty",
+      ["bad", "Perdés 10 TKA", `Recibís ${fmt(got)} TKB. Los tokens quedan atrapados en el contrato.`],
+      ok ? ["good", "Se cancela", "Error EmptyPool. Tus 10 TKA no se mueven de tu billetera."] : ["bad", "Error", ""]);
   },
   sandwich() {
     const amt = E(100), bot = E(500);
-    // v1
     const v1 = new DexV1(E(1000), E(1000));
-    const fair1 = v1.out(true, amt);
-    const botB = v1.swap(true, bot);
-    const got1 = v1.swap(true, amt);
-    const botBack = v1.swap(false, botB);
-    show("sandwich-v1", "bad", `Recibís ${fmt(got1)} TKB`, `Sin el bot habrías recibido ${fmt(fair1)}. El bot se lleva ${fmt(botBack - bot)} TKA de ganancia a tu costa.`);
-    // v2
+    const fair = v1.out(true, amt), botB = v1.swap(true, bot), got = v1.swap(true, amt), back = v1.swap(false, botB);
     const v2 = new DexV2(E(1000), E(1000));
-    const fair2 = v2.quote(true, amt);
-    const min = (fair2 * 9900n) / BPS;
+    const min = (v2.quote(true, amt) * 9900n) / BPS;
     v2.swap(true, bot, 0n);
-    try { v2.swap(true, amt, min); }
-    catch (e) { show("sandwich-v2", "good", "Se cancela", `Pediste al menos ${fmt(min)} TKB (1 % de tolerancia) y el precio ya no lo daba. Conservás tus 100 TKA y el ataque no le sirve al bot.`); }
+    let ok = false; try { v2.swap(true, amt, min); } catch (e) { ok = e instanceof Revert; }
+    show("sandwich",
+      ["bad", `Recibís ${fmt(got)} TKB`, `Sin el bot habrías recibido ${fmt(fair)}. El bot gana ${fmt(back - bot)} TKA a tu costa.`],
+      ok ? ["good", "Se cancela", `Pediste al menos ${fmt(min)} TKB y el precio ya no lo daba. Conservás tus 100 TKA.`] : ["bad", "Error", ""]);
   },
   donation() {
-    const v1 = new DexV1(E(100), E(100));
-    const p0 = v1.price(); v1.bB += E(100);
-    show("donation-v1", "bad", `Precio: ${fmt(p0)} → ${fmt(v1.price())}`, "El precio de TKA se duplica con una simple transferencia, sin ningún intercambio real.");
-    const v2 = new DexV2(E(100), E(100));
-    const q0 = v2.price();
-    show("donation-v2", "good", `Precio: ${fmt(q0)} → ${fmt(v2.price())}`, "El contrato lleva sus propias reservas y no cuenta lo que llega por fuera. El owner puede devolver esos tokens con skim().");
+    const v1 = new DexV1(E(100), E(100)); const p0 = v1.price(); v1.bB += E(100);
+    const v2 = new DexV2(E(100), E(100)); const q0 = v2.price();
+    show("donation",
+      ["bad", `Precio ${fmt(p0)} → ${fmt(v1.price())}`, "El precio de TKA se duplica sin ningún intercambio real."],
+      ["good", `Precio ${fmt(q0)} → ${fmt(v2.price())}`, "El contrato lleva sus propias reservas. Lo donado se recupera con skim()."]);
   },
   falsy() {
-    const v1 = new DexV1(E(1000), E(1000));
-    const got = v1.swap(true, E(100), false);
-    show("falsy-v1", "bad", `Te llevás ${fmt(got)} TKB gratis`, "La transferencia de TKA falló y devolvió false, pero la v1 no lo revisa y te paga igual.");
-    show("falsy-v2", "good", "Se cancela", "Con SafeERC20, cualquier transferencia que no se completa revierte toda la operación (SafeERC20FailedOperation).");
+    const got = new DexV1(E(1000), E(1000)).swap(true, E(100), false);
+    show("falsy",
+      ["bad", `${fmt(got)} TKB gratis`, "La transferencia de TKA falló y devolvió false, pero la v1 paga igual."],
+      ["good", "Se cancela", "Con SafeERC20 cualquier transferencia incompleta revierte toda la operación."]);
   },
 };
 document.querySelectorAll("[data-run]").forEach((b) => b.addEventListener("click", () => scenarios[b.dataset.run]()));

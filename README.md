@@ -1,80 +1,59 @@
-# 🏗 Scaffold-ETH 2
+# SimpleDEX v2
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+Exchange descentralizado (DEX) de dos tokens ERC20 escrito en Solidity, con la regla del producto constante **x · y = k**.
 
-🧪  open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+La v1 fue el trabajo práctico del **Developer Pack en Ethereum de ETH-KIPU**. La v2 revisa ese contrato, corrige sus fallas y suma tests que las demuestran.
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+**Demo interactiva:** [`demo/index.html`](demo/index.html). Simula el pool en el navegador con la misma matemática del contrato y compara, caso por caso, la v1 con la v2.
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## Qué fallaba en la v1 y cómo se resolvió
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+| Falla en la v1 | Qué podía pasar | Solución en la v2 |
+|---|---|---|
+| Swap con el pool vacío | El usuario entregaba sus tokens y recibía 0 | Revierte con `EmptyPool` |
+| Sin mínimo a recibir | Ataque sándwich: el usuario recibía mucho menos de lo esperado | Parámetro `minAmountOut` en cada swap |
+| Precio calculado con `balanceOf` | Cualquiera podía mover el precio enviando tokens directo al contrato | Reservas internas (`reserveA`, `reserveB`) y `skim()` para recuperar lo enviado por error |
+| No revisa la respuesta de `transfer` / `transferFrom` | Con tokens que devuelven `false`, se entregaban tokens sin cobrar | `SafeERC20` |
+| `getPrice` con el pool vacío | División por cero | Error claro `EmptyPool` |
+| Liquidez en cualquier proporción | Agregar liquidez movía el precio | Toma solo la parte proporcional |
+| Retiro de liquidez sin control | Se podía vaciar un lado del pool y dejar el otro | Revierte con `UnbalancedRemoval` |
+| Sin validaciones en el constructor | Dirección cero o el mismo token dos veces | `ZeroAddress` / `SameToken` |
 
-## Requirements
+Además, la v2 suma:
+- **Comisión de 0,3 %** por swap, que queda en el pool.
+- Soporte para **tokens con comisión por transferencia**: se cuenta lo que realmente llegó.
+- **Protección contra reentrancia** (`ReentrancyGuard`).
+- Eventos más completos y **errores con nombre**.
 
-Before you begin, you need to install the following tools:
+> **Cambio de interfaz:** `swapAforB` y `swapBforA` ahora reciben un segundo parámetro, el mínimo a recibir. Se agregó `getAmountOut(tokenIn, amountIn)` para cotizar antes de operar.
 
-- [Node (>= v18.18)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
-
-## Quickstart
-
-To get started with Scaffold-ETH 2, follow the steps below:
-
-1. Install dependencies if it was skipped in CLI:
+## Estructura
 
 ```
-cd my-dapp-example
+packages/hardhat/contracts/SimpleDex.sol          contrato v2
+packages/hardhat/contracts/TokenA.sol, TokenB.sol tokens de prueba
+packages/hardhat/contracts/legacy/SimpleDexV1.sol versión original, solo para los tests
+packages/hardhat/contracts/test/Mocks.sol         tokens no estándar para los tests
+packages/hardhat/test/SimpleDex.test.js           20 tests (fallas de la v1 + v2)
+demo/index.html                                   página demo
+```
+
+## Correrlo
+
+Requiere Node 18+ y Yarn.
+
+```bash
 yarn install
+yarn test     # corre los tests del contrato
+yarn chain    # red local (en una terminal)
+yarn deploy   # despliega TokenA, TokenB y SimpleDEX (en otra terminal)
+yarn start    # front-end de Scaffold-ETH en http://localhost:3000
 ```
 
-2. Run a local network in the first terminal:
+Al desplegar se regenera `packages/nextjs/contracts/deployedContracts.ts` con la nueva interfaz.
 
-```
-yarn chain
-```
+Para ver la demo alcanza con abrir `demo/index.html` en el navegador. Para publicarla en Vercel, importá este repo y elegí `demo` como *Root Directory*.
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
+---
 
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
-yarn start
-```
-
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
-
-Run smart contract test with `yarn hardhat:test`
-
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
-
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+Hecho por Mirta Longhitano · [Moebius Labs](https://moebiuslabs.vercel.app) · Basado en [Scaffold-ETH 2](https://scaffoldeth.io).

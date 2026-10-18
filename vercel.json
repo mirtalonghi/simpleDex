@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'Demo estática: no hace falta instalar dependencias'",
+  "buildCommand": "echo 'Demo estática: sin build'",
+  "outputDirectory": "demo"
+}

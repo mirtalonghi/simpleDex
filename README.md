@@ -52,7 +52,7 @@ yarn start    # front-end de Scaffold-ETH en http://localhost:3000
 
 Al desplegar se regenera `packages/nextjs/contracts/deployedContracts.ts` con la nueva interfaz.
 
-Para ver la demo alcanza con abrir `demo/index.html` en el navegador. Para publicarla en Vercel, importá este repo y elegí `demo` como *Root Directory*.
+Para ver la demo alcanza con abrir `demo/index.html` en el navegador. Para publicarla en Vercel, importá este repo tal cual: `vercel.json` ya indica que publique la carpeta `demo` sin instalar nada.
 
 ---
 
